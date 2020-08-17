@@ -58,7 +58,7 @@ namespace NewHorizon
             Retrack2,
             Retrack3,
             Manual,
- //           Automat
+            Automat
         }
         
 
@@ -345,7 +345,7 @@ namespace NewHorizon
                     {
                         string[] dic = {"Ручное управление (E):", "Режим навигации (Q):", "ПРОГРАММА", "Автомат", "Вращение", "Подача", "Удержание горизонта","Удержание плоскости", //0-7
                                 "ПРИВЯЗКА", "Привязать", "Тангаж", "Курс", "Плоскость", "НАСТРОЙКИ", "Язык", "Приоритет", "Русский", "Сброс", "Чувствительность",                       //8-18
-                                "[ВКЛ]", "  [x]  ", "21","22","Высокий","Средний","СТАТУС","Блок.","27","Ожидание","Заперто","Ручное упр.","Выдвижение...","Задвижение...","33"};                                                                                    //19+
+                                "[ВКЛ]", "  [x]  ", "21","22","Высокий","Средний","СТАТУС","Блок.","27","Ожидание","Заперто","Ручное упр.","Выдвижение...","Задвижение...","33"};      //19+
                         dic[21] = "(исп. \"WASD\" для навигации)       ";
                         dic[22] = "(уд. \"C\" для вращения плоскости)";
                         dic[27] = "Удержание горизонта...";
@@ -357,7 +357,7 @@ namespace NewHorizon
                     {
                         string[] dic = {"Manual Mode (E):", "Navigate Mode (Q):", "PROGRAM", "Automat", "Roll", "Feed", "Hold Horizon", "Hold Flat",     //0-7
                                 "BINDING", "Bind", "Pitch", "Heading", "Flat", "SETTING", "Language", "Priority", "English", "Reset", "Sensivity",           //8-18
-                                "[ON]", "  [x] ", "21", "22" ,"High","Medium","STATUS","locked","27","Idle","Secure","Manual","Extracting...","Retracking...","33"};                                                          //19+
+                                "[ON]", "  [x] ", "21", "22" ,"High","Medium","STATUS","locked","27","Idle","Secure","Manual","Extracting...","Retracking...","33"};    //19+
                         dic[21] = "(use \"WASD\" to navigate)";
                         dic[22] = "(hold \"C\" to flat rotate)            ";
                         dic[27] = "Holding horizon...";
