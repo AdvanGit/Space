@@ -10,76 +10,67 @@ using Sandbox.Game.EntityComponents;
 using VRage.Game.Components;
 using VRage.Collections;
 using VRage.Game.ObjectBuilders.Definitions;
-//using VRage.ModAPI;
+using VRage.ModAPI;
 using SpaceEngineers.Game.ModAPI.Ingame;
 
-namespace NewHorizon
+namespace WheelMiner
 {
     public sealed class Program : MyGridProgram
     {
-
-        IMyTextSurfaceProvider cockpit;
+        IMyTextSurfaceProvider Cockpit;
         IMyMotorStator RotorMain, RotorL, RotorR, AdRotL, AdRotR;
         IMyShipController RemoteControl;
-        List<IMyPistonBase> pistonsList = new List<IMyPistonBase>();
-        float pistonExtend, rotateAngle, zeroHeading, curElevation, zeroElevation, curFlatAngle, zeroFlatAngle = 0;
+        List<IMyPistonBase> PistonsList = new List<IMyPistonBase>();
+        float pistonExtend, rotateAngle, zeroHeading, curElevation, zeroElevation, zeroFlatAngle = 0;
         float sensivity = 0.3f;
         string[] dic;
         Action action = Action.Free;
         int page = 0;
         int[] cursor = { 0, 0 };
         bool key1, key2, key3, isManual, isNavigate, isAutomat, isHoldFlat, isHoldHorizon, refreshDisplay = false;
-
         public Program()
         {
-
             Runtime.UpdateFrequency = UpdateFrequency.Update10;
-            cockpit = GridTerminalSystem.GetBlockWithName("Cockpit") as IMyTextSurfaceProvider;
+            Cockpit = GridTerminalSystem.GetBlockWithName("Cockpit") as IMyTextSurfaceProvider;
             RotorMain = GridTerminalSystem.GetBlockWithName("RotorMain") as IMyMotorStator;
             RotorL = GridTerminalSystem.GetBlockWithName("RotorL") as IMyMotorStator;
             RotorR = GridTerminalSystem.GetBlockWithName("RotorR") as IMyMotorStator;
             AdRotL = GridTerminalSystem.GetBlockWithName("AdRotL") as IMyMotorStator;
             AdRotR = GridTerminalSystem.GetBlockWithName("AdRotR") as IMyMotorStator;
             RemoteControl = GridTerminalSystem.GetBlockWithName("Remote") as IMyShipController;
-            GridTerminalSystem.GetBlocksOfType<IMyPistonBase>(pistonsList);
+            GridTerminalSystem.GetBlocksOfType<IMyPistonBase>(PistonsList);
             dic = Dictionary("rus");
             WriteStatusDisplay();
             WriteNavigateDisplay(cursor);
-
         }
-
         enum Action : int
         {
             Free,
             Secure,
-            Extract1,
-            Extract2,
+            Extract,
             Retrack1,
             Retrack2,
             Retrack3,
             Manual,
             Automat
         }
-        
-
         public void WriteStatusDisplay()
         {
-            string display = string.Format($"{dic[25],-5}: {getString(action.ToString())}");
+            string display = string.Format($"{dic[25],-5}: {GetString(action.ToString())}");
 
-            display += string.Format($"\n\n{dic[1],-25} {getString(isNavigate)}");
+            display += string.Format($"\n\n{dic[1],-25} {GetString(isNavigate)}");
             display += string.Format($"\n{dic[0],-25} ");
 
             if ((action != Action.Free) && (action != Action.Manual)) display += string.Format($"{dic[26]}\n");
-            else display += string.Format($"{getString(isManual)}\n");
+            else display += string.Format($"{GetString(isManual)}\n");
 
             if (isNavigate) display += string.Format($"\n{dic[21],-30}");
             if ((action == Action.Manual) && (!isHoldFlat)) display += string.Format($"\n{dic[22],-30}");
 
             if (isHoldHorizon) display += string.Format($"\n\n{dic[27]}");
             if (isHoldFlat) display += string.Format($"\n{dic[33]}");
-            cockpit.GetSurface(3).WriteText(display, false);
+            Cockpit.GetSurface(3).WriteText(display, false);
         }
-
         public void WriteNavigateDisplay(int[] arr)
         {
             switch (page)
@@ -149,26 +140,26 @@ namespace NewHorizon
                                 }
                         }
 
-                        if (arr[0] == 0) cockpit.GetSurface(1).WriteText($"            < {dic[2]} >\n", false);
-                        else cockpit.GetSurface(1).WriteText($"              {dic[2]}\n", false);
+                        if (arr[0] == 0) Cockpit.GetSurface(1).WriteText($"            < {dic[2]} >\n", false);
+                        else Cockpit.GetSurface(1).WriteText($"              {dic[2]}\n", false);
 
-                        if (arr[0] == 1) cockpit.GetSurface(1).WriteText($"\n{dic[3]}:   < {getString(isAutomat)} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[3]}:    {getString(isAutomat)}", true);
+                        if (arr[0] == 1) Cockpit.GetSurface(1).WriteText($"\n{dic[3]}:   < {GetString(isAutomat)} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[3]}:    {GetString(isAutomat)}", true);
 
-                        if (arr[0] == 2) cockpit.GetSurface(1).WriteText($"\n{dic[4]}:   < {rotateAngle} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[4]}:    {rotateAngle}", true);
+                        if (arr[0] == 2) Cockpit.GetSurface(1).WriteText($"\n{dic[4]}:   < {rotateAngle} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[4]}:    {rotateAngle}", true);
 
-                        if (arr[0] == 3) cockpit.GetSurface(1).WriteText($"\n{dic[5]}:   < {pistonExtend} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[5]}:    {pistonExtend}", true);
+                        if (arr[0] == 3) Cockpit.GetSurface(1).WriteText($"\n{dic[5]}:   < {pistonExtend} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[5]}:    {pistonExtend}", true);
 
-                        if (arr[0] == 4) cockpit.GetSurface(1).WriteText($"\n{dic[6]}:   < {getString(isHoldHorizon)} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[6]}:    {getString(isHoldHorizon)}", true);
+                        if (arr[0] == 4) Cockpit.GetSurface(1).WriteText($"\n{dic[6]}:   < {GetString(isHoldHorizon)} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[6]}:    {GetString(isHoldHorizon)}", true);
 
-                        if (arr[0] == 5) cockpit.GetSurface(1).WriteText($"\n{dic[7]}:   < {getString(isHoldFlat)} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[7]}:    {getString(isHoldFlat)}", true);
+                        if (arr[0] == 5) Cockpit.GetSurface(1).WriteText($"\n{dic[7]}:   < {GetString(isHoldFlat)} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[7]}:    {GetString(isHoldFlat)}", true);
 
-                        if (arr[0] == 6) cockpit.GetSurface(1).WriteText($"\n{dic[17]}   <  >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[17]}", true);
+                        if (arr[0] == 6) Cockpit.GetSurface(1).WriteText($"\n{dic[17]}   <  >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[17]}", true);
                         break;
                     }
                 case 1:
@@ -228,23 +219,23 @@ namespace NewHorizon
                                 }
                         }
 
-                        if (arr[0] == 0) cockpit.GetSurface(1).WriteText($"             < {dic[8]} >\n", false);  //Привязка
-                        else cockpit.GetSurface(1).WriteText($"               {dic[8]}\n", false);
+                        if (arr[0] == 0) Cockpit.GetSurface(1).WriteText($"             < {dic[8]} >\n", false);  //Привязка
+                        else Cockpit.GetSurface(1).WriteText($"               {dic[8]}\n", false);
 
-                        if (arr[0] == 1) cockpit.GetSurface(1).WriteText($"\n{dic[9]}:       < {RotorMain.Angle * (float)57.2:0.0}, {curElevation:0.0}, {(AdRotR.Angle + RotorR.Angle) * 57.2:0.0} >", true);   //Привязать текущую позицию
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[9]}:         {RotorMain.Angle * (float)57.2:0.0}, {curElevation:0.0}, {(AdRotR.Angle + RotorR.Angle) * 57.2:0.0}", true);
+                        if (arr[0] == 1) Cockpit.GetSurface(1).WriteText($"\n{dic[9]}:       < {RotorMain.Angle * (float)57.2:0.0}, {curElevation:0.0}, {(AdRotR.Angle + RotorR.Angle) * 57.2:0.0} >", true);   //Привязать текущую позицию
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[9]}:         {RotorMain.Angle * (float)57.2:0.0}, {curElevation:0.0}, {(AdRotR.Angle + RotorR.Angle) * 57.2:0.0}", true);
 
-                        if (arr[0] == 2) cockpit.GetSurface(1).WriteText($"\n{dic[11]}:      < {zeroHeading:0.0} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[11]}:        {zeroHeading:0.0}", true);
+                        if (arr[0] == 2) Cockpit.GetSurface(1).WriteText($"\n{dic[11]}:      < {zeroHeading:0.0} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[11]}:        {zeroHeading:0.0}", true);
 
-                        if (arr[0] == 3) cockpit.GetSurface(1).WriteText($"\n{dic[10]}:      < {zeroElevation:0.0} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[10]}:        {zeroElevation:0.0}", true);
+                        if (arr[0] == 3) Cockpit.GetSurface(1).WriteText($"\n{dic[10]}:      < {zeroElevation:0.0} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[10]}:        {zeroElevation:0.0}", true);
 
-                        if (arr[0] == 4) cockpit.GetSurface(1).WriteText($"\n{dic[12]}:      < {zeroFlatAngle:0.0} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[12]}:        {zeroFlatAngle:0.0}", true);
+                        if (arr[0] == 4) Cockpit.GetSurface(1).WriteText($"\n{dic[12]}:      < {zeroFlatAngle:0.0} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[12]}:        {zeroFlatAngle:0.0}", true);
 
-                        if (arr[0] == 5) cockpit.GetSurface(1).WriteText($"\n\n{dic[17]}      < >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n\n{dic[17]}", true);
+                        if (arr[0] == 5) Cockpit.GetSurface(1).WriteText($"\n\n{dic[17]}      < >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n\n{dic[17]}", true);
 
                         break;
                     }
@@ -300,43 +291,41 @@ namespace NewHorizon
                                 }
                         }
 
-                        if (arr[0] == 0) cockpit.GetSurface(1).WriteText($"             < {dic[13]} >\n", false);  //Setting
-                        else cockpit.GetSurface(1).WriteText($"               {dic[13]}\n", false);
+                        if (arr[0] == 0) Cockpit.GetSurface(1).WriteText($"             < {dic[13]} >\n", false);  //Setting
+                        else Cockpit.GetSurface(1).WriteText($"               {dic[13]}\n", false);
 
-                        if (arr[0] == 1) cockpit.GetSurface(1).WriteText($"\n{dic[14]}:       < {dic[16]} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[14]}:         {dic[16]}  ", true);
+                        if (arr[0] == 1) Cockpit.GetSurface(1).WriteText($"\n{dic[14]}:       < {dic[16]} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[14]}:         {dic[16]}  ", true);
 
-                        if (arr[0] == 2) cockpit.GetSurface(1).WriteText($"\n{dic[18]}:       < {sensivity.ToString()} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[18]}:         {sensivity.ToString()}  ", true);
+                        if (arr[0] == 2) Cockpit.GetSurface(1).WriteText($"\n{dic[18]}:       < {sensivity.ToString()} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[18]}:         {sensivity.ToString()}  ", true);
 
-                        if (arr[0] == 3) cockpit.GetSurface(1).WriteText($"\n{dic[15]}:      < {getString(Runtime.UpdateFrequency.ToString())} >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n{dic[15]}:        {getString(Runtime.UpdateFrequency.ToString())}", true);
+                        if (arr[0] == 3) Cockpit.GetSurface(1).WriteText($"\n{dic[15]}:      < {GetString(Runtime.UpdateFrequency.ToString())} >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n{dic[15]}:        {GetString(Runtime.UpdateFrequency.ToString())}", true);
 
-                        if (arr[0] == 4) cockpit.GetSurface(1).WriteText($"\n\n\n{dic[17]}      < >", true);
-                        else cockpit.GetSurface(1).WriteText($"\n\n\n{dic[17]}", true);
+                        if (arr[0] == 4) Cockpit.GetSurface(1).WriteText($"\n\n\n{dic[17]}      < >", true);
+                        else Cockpit.GetSurface(1).WriteText($"\n\n\n{dic[17]}", true);
 
                         break;
                     }
             }
         }
-
         public void SetPiston(float targetLenght)
         {
-            if (pistonsList[0].CurrentPosition >= targetLenght)
+            if (PistonsList[0].CurrentPosition >= targetLenght)
             {
-                if (pistonsList[0].Velocity >= 0) foreach (var i in pistonsList) i.Velocity *= (-1);
-                foreach (var i in pistonsList)
+                if (PistonsList[0].Velocity >= 0) foreach (var i in PistonsList) i.Velocity *= (-1);
+                foreach (var i in PistonsList)
                     i.MinLimit = targetLenght;
             }
             else
             {
-                if (pistonsList[0].Velocity <= 0) foreach (var i in pistonsList) i.Velocity *= (-1);
-                foreach (var i in pistonsList)
+                if (PistonsList[0].Velocity <= 0) foreach (var i in PistonsList) i.Velocity *= (-1);
+                foreach (var i in PistonsList)
                     i.MaxLimit = targetLenght;
             }
 
         }
-
         static string[] Dictionary(string lang)
         {
             switch (lang)
@@ -366,12 +355,12 @@ namespace NewHorizon
                     }
             }
         }
-        public string getString(bool str)
+        public string GetString(bool str)
         {
             if (str) return dic[19];
             else return dic[20];
         }
-        public string getString(string str)
+        public string GetString(string str)
         {
             switch (str)
             {
@@ -380,15 +369,13 @@ namespace NewHorizon
                 case "Free": return dic[28];
                 case "Secure": return dic[29];
                 case "Manual": return dic[30];
-                case "Extract1":
-                case "Extract2": return dic[31];
+                case "Extract": return dic[31];
                 case "Retrack1":
                 case "Retrack2":
                 case "Retrack3": return dic[32];
                 default: return null;
             }
         }
-
         public void Main(string argument, UpdateType updateSource)
         {
             if (refreshDisplay)
@@ -405,20 +392,41 @@ namespace NewHorizon
                     {
                         RotorMain.UpperLimitDeg = float.MaxValue;
                         RotorMain.LowerLimitDeg = float.MinValue;
-                        action = Action.Extract1;
-                        isHoldFlat = false;
+                        RotorMain.TargetVelocityRPM = 0;
+                        RotorL.TargetVelocityRPM = 0;
+                        RotorR.TargetVelocityRPM = 0;
+                        AdRotL.TargetVelocityRPM = 0;
+                        AdRotR.TargetVelocityRPM = 0;
+                        SetPiston(10);
+                        action = Action.Extract;
+                        WriteStatusDisplay();
                         break;
                     }
                 case "retrack":
                     {
-                        action = Action.Retrack1;
-                        isHoldHorizon = false;
+                        RotorMain.UpperLimitDeg = float.MaxValue;
+                        RotorMain.LowerLimitDeg = float.MinValue;
+                        if (RotorMain.Angle * 57.2 > 340)
+                        {
+                            
+                            RotorMain.UpperLimitDeg = 0;
+                            RotorMain.TargetVelocityRPM = 0.5f;
+                            action = Action.Retrack1;
+                            break;
+                        }
+                        if (RotorMain.Angle * 57.2 < 20)
+                        {
 
+                            RotorMain.LowerLimitDeg = 360;
+                            RotorMain.TargetVelocityRPM = -0.5f;
+                            action = Action.Retrack1;
+                            break;
+                        }
                         break;
                     }
-                case "stop":
+                case "on/off":
                     {
-                        action = Action.Free;
+  //                      Runtime.UpdateFrequency = (Runtime.UpdateFrequency == UpdateFrequency.Once) ? UpdateFrequency.Update10 : UpdateFrequency.Once;
                         break;
                     }
 
@@ -428,7 +436,6 @@ namespace NewHorizon
             {
                 case Action.Free:
                     {
-
                         break;
                     }
                 case Action.Manual:
@@ -437,7 +444,6 @@ namespace NewHorizon
 
                         if (RemoteControl.MoveIndicator.Y == -1)
                         {
-
                             RotorL.TargetVelocityRPM = 0;
                             RotorR.TargetVelocityRPM = 0;
                             AdRotL.TargetVelocityRPM = (RemoteControl.RotationIndicator.X) * sensivity;
@@ -460,26 +466,20 @@ namespace NewHorizon
                     }
                 case Action.Secure:
                     {
-                        WriteStatusDisplay();
                         break;
                     }
-                case Action.Extract1:
+                case Action.Extract:
                     {
-                        SetPiston(10);
-                        action = Action.Extract2;
-                        WriteStatusDisplay();
-                        break;
-                    }
-                case Action.Extract2:
-                    {
-                        if (pistonsList[0].CurrentPosition == 10)
+                        if (PistonsList[0].CurrentPosition == 10)
                         {
 
                             //RotorMain.LowerLimitDeg = float.MinValue;
-                            // RotorMain.UpperLimitDeg = float.MaxValue;
+                            //RotorMain.UpperLimitDeg = float.MaxValue;
                             RotorMain.RotorLock = false;
                             RotorL.RotorLock = false;
                             RotorR.RotorLock = false;
+                            AdRotL.RotorLock = false;
+                            AdRotR.RotorLock = false;
                             action = Action.Free;
                             WriteStatusDisplay();
                         }
@@ -488,52 +488,34 @@ namespace NewHorizon
                     }
                 case Action.Retrack1:   //heading rotor direction of rotate
                     {
-
-                        if (RotorMain.Angle * 57.2 > 340)
-                        {
-                            isManual = false;
-                            zeroFlatAngle = curElevation;
-                            isHoldFlat = true;
-                            SetPiston(10);
-                            RotorMain.UpperLimitDeg = 0;
-                            RotorMain.TargetVelocityRPM = 0.5f;
-                            RotorL.TargetVelocityRPM = -0.3f;
-                            RotorR.TargetVelocityRPM = 0.3f;
-                            action = Action.Retrack2;
-                            WriteStatusDisplay();
-                            break;
-                        }
-                        else action = Action.Free;
-                        if (RotorMain.Angle * 57.2 < 20)
-                        {
-                            isManual = false;
-                            zeroFlatAngle = curElevation;
-                            isHoldFlat = true;
-                            SetPiston(10);
-                            RotorL.TargetVelocityRPM = -0.3f;
-                            RotorR.TargetVelocityRPM = 0.3f;
-                            RotorMain.LowerLimitDeg = 360;
-                            RotorMain.TargetVelocityRPM = -0.5f;
-                            action = Action.Retrack2;
-                            WriteStatusDisplay();
-                            break;
-                        }
-                        else action = Action.Free;
+                        isHoldFlat = false;
+                        isHoldHorizon = false;
+                        isManual = false;
+                        SetPiston(10);
+                        AdRotL.TargetVelocityRPM = 1;
+                        AdRotR.TargetVelocityRPM = -1;
+                        RotorL.TargetVelocityRPM = -0.3f;
+                        RotorR.TargetVelocityRPM = 0.3f;
+                        action = Action.Retrack2;
+                        WriteStatusDisplay();
+                        refreshDisplay = true;
                         break;
                     }
-                case Action.Retrack2:     //heading zero point
+                case Action.Retrack2:     //waiting on zerohead and elev
                     {
 
                         if ((RotorL.Angle * 57.2 < 0) && (AdRotL.Angle * 57.2 > -0.2f))
                             if ((RotorMain.Angle * 57.2 < 360) && (RotorMain.Angle * 57.2 > 0))
                             {
-
                                 RotorL.TargetVelocityRPM = 0;
                                 RotorR.TargetVelocityRPM = 0;
                                 RotorMain.TargetVelocityRPM = 0;
                                 RotorMain.RotorLock = true;
                                 RotorL.RotorLock = true;
                                 RotorR.RotorLock = true;
+                                AdRotL.RotorLock = true;
+                                AdRotR.RotorLock = true;
+                                isHoldFlat = false;
                                 RotorMain.LowerLimitDeg = float.MinValue;
                                 RotorMain.UpperLimitDeg = float.MaxValue;
                                 SetPiston(0);
@@ -543,10 +525,10 @@ namespace NewHorizon
                     }
                 case Action.Retrack3:
                     {
-                        if (pistonsList[0].CurrentPosition == 0)
+                        if (PistonsList[0].CurrentPosition == 0)
                         {
                             action = Action.Secure;
-                            isHoldFlat = false;
+                            WriteStatusDisplay();
                         }
                         break;
                     }
@@ -598,9 +580,9 @@ namespace NewHorizon
             if (isHoldHorizon)
             {
 
-                Vector3D GravNorm = Vector3D.Normalize((cockpit as IMyShipController).GetNaturalGravity());
-                float vecForward = (float)GravNorm.Dot((cockpit as IMyShipController).WorldMatrix.Forward);
-                float vecUp = (float)GravNorm.Dot((cockpit as IMyShipController).WorldMatrix.Up);
+                Vector3D GravNorm = Vector3D.Normalize((Cockpit as IMyShipController).GetNaturalGravity());
+                float vecForward = (float)GravNorm.Dot((Cockpit as IMyShipController).WorldMatrix.Forward);
+                float vecUp = (float)GravNorm.Dot((Cockpit as IMyShipController).WorldMatrix.Up);
                 curElevation = -(float)Math.Atan2(vecForward, -vecUp) * 57.2f;
 
                 RotorL.TargetVelocityRPM = (sensivity / 2) * (curElevation - zeroElevation);
@@ -609,12 +591,11 @@ namespace NewHorizon
 
             if (isHoldFlat)
             {
-                Vector3D GravNorm = Vector3D.Normalize((cockpit as IMyShipController).GetNaturalGravity());
-                float vecForward = (float)GravNorm.Dot((cockpit as IMyShipController).WorldMatrix.Forward);
-                float vecUp = (float)GravNorm.Dot((cockpit as IMyShipController).WorldMatrix.Up);
-                curFlatAngle = -(float)Math.Atan2(vecForward, -vecUp) * 57.2f;
-
-                AdRotL.TargetVelocityRPM = 0.1f * (AdRotR.Angle * 57.2f + curFlatAngle - zeroFlatAngle);
+                Vector3D GravNorm = Vector3D.Normalize((Cockpit as IMyShipController).GetNaturalGravity());
+                float vecForward = (float)GravNorm.Dot((Cockpit as IMyShipController).WorldMatrix.Forward);
+                float vecUp = (float)GravNorm.Dot((Cockpit as IMyShipController).WorldMatrix.Up);
+                curElevation = -(float)Math.Atan2(vecForward, -vecUp) * 57.2f;
+                AdRotL.TargetVelocityRPM = 0.1f * (AdRotR.Angle * 57.2f + curElevation - zeroFlatAngle);
                 AdRotR.TargetVelocityRPM = -AdRotL.TargetVelocityRPM;
             }
 
@@ -686,18 +667,15 @@ namespace NewHorizon
 
 
             //--------DEBUG---------
-            cockpit.GetSurface(0).WriteText(cursor[0].ToString() + cursor[1].ToString(), false);
-            cockpit.GetSurface(0).WriteText("\nflat: " + isHoldFlat.ToString(), true);
-            cockpit.GetSurface(0).WriteText("\nPitchInputEl: " + curElevation, true);
-            cockpit.GetSurface(0).WriteText("\nPitchInputFl: " + curFlatAngle, true);
-            cockpit.GetSurface(0).WriteText("\nAction: " + action, true);
-            cockpit.GetSurface(0).WriteText("\nMain Rotor Angle:  " + (RotorMain.Angle * 57.2).ToString(), true);
-            cockpit.GetSurface(0).WriteText("\nAdRotorAngle:  " + (AdRotR.Angle * 57.2).ToString(), true);
-            cockpit.GetSurface(0).WriteText("\n" + action.ToString(), true);
+            Cockpit.GetSurface(0).WriteText(cursor[0].ToString() + cursor[1].ToString(), false);
+            Cockpit.GetSurface(0).WriteText("\nflat: " + isHoldFlat.ToString(), true);
+            Cockpit.GetSurface(0).WriteText("\nPitchInputEl: " + curElevation, true);
+            Cockpit.GetSurface(0).WriteText("\nAction: " + action, true);
+            Cockpit.GetSurface(0).WriteText("\nMain Rotor Angle:  " + (RotorMain.Angle * 57.2).ToString(), true);
+            Cockpit.GetSurface(0).WriteText("\nAdRotorAngle:  " + (AdRotR.Angle * 57.2).ToString(), true);
+            Cockpit.GetSurface(0).WriteText("\n" + action.ToString(), true);
 
 
         }
-
-
     }
 }
