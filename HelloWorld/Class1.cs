@@ -43,16 +43,10 @@ namespace WheelMiner
             WriteStatusDisplay();
             WriteNavigateDisplay(cursor);
         }
+
         enum Action : int
         {
-            Free,
-            Secure,
-            Extract,
-            Retrack1,
-            Retrack2,
-            Retrack3,
-            Manual,
-            Automat
+            Free, Secure, Extract, Retrack1, Retrack2, Retrack3, Manual, Automat
         }
         public void WriteStatusDisplay()
         {
@@ -125,6 +119,7 @@ namespace WheelMiner
                                         pistonExtend = 0;
                                         isHoldHorizon = false;
                                         isHoldFlat = false;
+                                        WriteStatusDisplay();
                                     }
                                     break;
                                 }
@@ -139,27 +134,17 @@ namespace WheelMiner
                                     break;
                                 }
                         }
+                        string display;
 
-                        if (arr[0] == 0) Cockpit.GetSurface(1).WriteText($"            < {dic[2]} >\n", false);
-                        else Cockpit.GetSurface(1).WriteText($"              {dic[2]}\n", false);
+                        display = String.Format($"{GetString(arr[0], 0, false),15} {dic[2]} {GetString(arr[0], 0, true)}");
+                        display += String.Format($"\n\n{dic[3]} {GetString(arr[0], 1, false), 23} {GetString(isAutomat)} {GetString(arr[0], 1, true)}");
+                        display += String.Format($"\n{dic[4]} {GetString(arr[0], 2, false),23} {rotateAngle} {GetString(arr[0], 2, true)}");
+                        display += String.Format($"\n{dic[5]} {GetString(arr[0], 3, false),23} {pistonExtend} {GetString(arr[0], 3, true)}");
+                        display += String.Format($"\n{dic[6]} {GetString(arr[0], 4, false),3} {GetString(isHoldHorizon)} {GetString(arr[0], 4, true)}");
+                        display += String.Format($"\n{dic[7]} {GetString(arr[0], 5, false),3} {GetString(isHoldFlat)} {GetString(arr[0], 5, true)}");
+                        display += String.Format($"\n\n{dic[17]} {GetString(arr[0], 6, true)}");
 
-                        if (arr[0] == 1) Cockpit.GetSurface(1).WriteText($"\n{dic[3]}:   < {GetString(isAutomat)} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[3]}:    {GetString(isAutomat)}", true);
-
-                        if (arr[0] == 2) Cockpit.GetSurface(1).WriteText($"\n{dic[4]}:   < {rotateAngle} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[4]}:    {rotateAngle}", true);
-
-                        if (arr[0] == 3) Cockpit.GetSurface(1).WriteText($"\n{dic[5]}:   < {pistonExtend} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[5]}:    {pistonExtend}", true);
-
-                        if (arr[0] == 4) Cockpit.GetSurface(1).WriteText($"\n{dic[6]}:   < {GetString(isHoldHorizon)} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[6]}:    {GetString(isHoldHorizon)}", true);
-
-                        if (arr[0] == 5) Cockpit.GetSurface(1).WriteText($"\n{dic[7]}:   < {GetString(isHoldFlat)} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[7]}:    {GetString(isHoldFlat)}", true);
-
-                        if (arr[0] == 6) Cockpit.GetSurface(1).WriteText($"\n{dic[17]}   <  >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[17]}", true);
+                        Cockpit.GetSurface(1).WriteText(display, false);
                         break;
                     }
                 case 1:
@@ -218,25 +203,16 @@ namespace WheelMiner
                                     break;
                                 }
                         }
+                        string display;
 
-                        if (arr[0] == 0) Cockpit.GetSurface(1).WriteText($"             < {dic[8]} >\n", false);  //Привязка
-                        else Cockpit.GetSurface(1).WriteText($"               {dic[8]}\n", false);
+                        display = String.Format($"{GetString(arr[0], 0, false),15} {dic[8]} {GetString(arr[0], 0, true)}");
+                        display += String.Format($"\n\n{dic[9]} {GetString(arr[0], 1, true)} {RotorMain.Angle * (float)57.2:0}, {curElevation:0}, {(AdRotR.Angle + RotorR.Angle) * 57.2:0}");
+                        display += String.Format($"\n{dic[11]} {GetString(arr[0], 2, false)} {zeroHeading:0.0} {GetString(arr[0], 2, true)}");
+                        display += String.Format($"\n{dic[10]} {GetString(arr[0], 3, false)} {zeroElevation:0.0} {GetString(arr[0], 3, true)}");
+                        display += String.Format($"\n{dic[12]} {GetString(arr[0], 4, false)} {zeroFlatAngle:0.0} {GetString(arr[0], 4, true)}");
+                        display += String.Format($"\n\n\n{dic[17]} {GetString(arr[0], 5, true)}");
 
-                        if (arr[0] == 1) Cockpit.GetSurface(1).WriteText($"\n{dic[9]}:       < {RotorMain.Angle * (float)57.2:0.0}, {curElevation:0.0}, {(AdRotR.Angle + RotorR.Angle) * 57.2:0.0} >", true);   //Привязать текущую позицию
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[9]}:         {RotorMain.Angle * (float)57.2:0.0}, {curElevation:0.0}, {(AdRotR.Angle + RotorR.Angle) * 57.2:0.0}", true);
-
-                        if (arr[0] == 2) Cockpit.GetSurface(1).WriteText($"\n{dic[11]}:      < {zeroHeading:0.0} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[11]}:        {zeroHeading:0.0}", true);
-
-                        if (arr[0] == 3) Cockpit.GetSurface(1).WriteText($"\n{dic[10]}:      < {zeroElevation:0.0} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[10]}:        {zeroElevation:0.0}", true);
-
-                        if (arr[0] == 4) Cockpit.GetSurface(1).WriteText($"\n{dic[12]}:      < {zeroFlatAngle:0.0} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[12]}:        {zeroFlatAngle:0.0}", true);
-
-                        if (arr[0] == 5) Cockpit.GetSurface(1).WriteText($"\n\n{dic[17]}      < >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n\n{dic[17]}", true);
-
+                        Cockpit.GetSurface(1).WriteText(display, false);
                         break;
                     }
                 case 2:
@@ -290,22 +266,15 @@ namespace WheelMiner
                                     break;
                                 }
                         }
+                        string display;
 
-                        if (arr[0] == 0) Cockpit.GetSurface(1).WriteText($"             < {dic[13]} >\n", false);  //Setting
-                        else Cockpit.GetSurface(1).WriteText($"               {dic[13]}\n", false);
+                        display = String.Format($"{GetString(arr[0], 0, false),15} {dic[13]} {GetString(arr[0], 0, true)}");
+                        display += String.Format($"\n\n{dic[14]} {GetString(arr[0], 1, false)} {dic[16]} {GetString(arr[0], 1, true)}");
+                        display += String.Format($"\n{dic[18]} {GetString(arr[0], 2, false)} {sensivity.ToString()} {GetString(arr[0], 2, true)}");
+                        display += String.Format($"\n{dic[15]} {GetString(arr[0], 3, false)} {GetString(Runtime.UpdateFrequency.ToString())} {GetString(arr[0], 3, true)}");
+                        display += String.Format($"\n\n\n\n{dic[17]} {GetString(arr[0], 4, true)}");
 
-                        if (arr[0] == 1) Cockpit.GetSurface(1).WriteText($"\n{dic[14]}:       < {dic[16]} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[14]}:         {dic[16]}  ", true);
-
-                        if (arr[0] == 2) Cockpit.GetSurface(1).WriteText($"\n{dic[18]}:       < {sensivity.ToString()} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[18]}:         {sensivity.ToString()}  ", true);
-
-                        if (arr[0] == 3) Cockpit.GetSurface(1).WriteText($"\n{dic[15]}:      < {GetString(Runtime.UpdateFrequency.ToString())} >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n{dic[15]}:        {GetString(Runtime.UpdateFrequency.ToString())}", true);
-
-                        if (arr[0] == 4) Cockpit.GetSurface(1).WriteText($"\n\n\n{dic[17]}      < >", true);
-                        else Cockpit.GetSurface(1).WriteText($"\n\n\n{dic[17]}", true);
-
+                        Cockpit.GetSurface(1).WriteText(display, false);
                         break;
                     }
             }
@@ -332,9 +301,9 @@ namespace WheelMiner
             {
                 case "rus":
                     {
-                        string[] dic = {"Ручное управление (E):", "Режим навигации (Q):", "ПРОГРАММА", "Автомат", "Вращение", "Подача", "Удержание горизонта","Удержание плоскости", //0-7
-                                "ПРИВЯЗКА", "Привязать", "Тангаж", "Курс", "Плоскость", "НАСТРОЙКИ", "Язык", "Приоритет", "Русский", "Сброс", "Чувствительность",                       //8-18
-                                "[ВКЛ]", "  [x]  ", "21","22","Высокий","Средний","СТАТУС","Блок.","27","Ожидание","Заперто","Ручное упр.","Выдвижение...","Задвижение...","33"};      //19+
+                        string[] dic = {"Ручное управление (E):", "Режим навигации (Q):", "ПРОГРАММА", "Автомат:  ", "Вращение:", "Подача:     ", "Удержание горизонта:","Удержание плоскости:", //0-7
+                                "ПАРАМЕТРЫ", "Привязать:", "Тангаж:", "Курс:", "Плоскость:", "НАСТРОЙКИ", "Язык:", "Приоритет:", "Русский", "Сброс", "Чувствительность:",                       //8-18
+                                "[ВКЛ]", "[x]", "21","22","Высокий","Средний","СТАТУС","Блок.","27","Ожидание","Заперто","Ручное упр.","Выдвижение...","Задвижение...","33"};      //19+
                         dic[21] = "(исп. \"WASD\" для навигации)       ";
                         dic[22] = "(уд. \"C\" для вращения плоскости)";
                         dic[27] = "Удержание горизонта...";
@@ -344,9 +313,9 @@ namespace WheelMiner
                 case "eng":
                 default:
                     {
-                        string[] dic = {"Manual Mode (E):", "Navigate Mode (Q):", "PROGRAM", "Automat", "Roll", "Feed", "Hold Horizon", "Hold Flat",     //0-7
-                                "BINDING", "Bind", "Pitch", "Heading", "Flat", "SETTING", "Language", "Priority", "English", "Reset", "Sensivity",           //8-18
-                                "[ON]", "  [x] ", "21", "22" ,"High","Medium","STATUS","locked","27","Idle","Secure","Manual","Extracting...","Retracking...","33"};    //19+
+                        string[] dic = {"Manual Mode (E):", "Navigate Mode (Q):", "PROGRAM", "Automat:   ", "Roll:           ", "Feed:         ", "Hold Horizon:                ", "Hold Flat:                      ",     //0-7
+                                "PARAMS", "Bind:", "Pitch:", "Heading:", "Flat:", "SETTING", "Language:", "Priority:", "English", "Reset", "Sensivity:",           //8-18
+                                "[ON]", "[x]", "21", "22" ,"High","Medium","STATUS","locked","27","Idle","Secure","Manual","Extracting...","Retracking...","33"};    //19+
                         dic[21] = "(use \"WASD\" to navigate)";
                         dic[22] = "(hold \"C\" to flat rotate)            ";
                         dic[27] = "Holding horizon...";
@@ -376,6 +345,14 @@ namespace WheelMiner
                 default: return null;
             }
         }
+        public string GetString(int a, int b, bool isRight)
+        {
+            if (a == b)
+                if (isRight) return ">";
+                else return "<";
+            else return "";
+        }
+
         public void Main(string argument, UpdateType updateSource)
         {
             if (refreshDisplay)
@@ -408,7 +385,7 @@ namespace WheelMiner
                         RotorMain.LowerLimitDeg = float.MinValue;
                         if (RotorMain.Angle * 57.2 > 340)
                         {
-                            
+
                             RotorMain.UpperLimitDeg = 0;
                             RotorMain.TargetVelocityRPM = 0.5f;
                             action = Action.Retrack1;
@@ -426,7 +403,7 @@ namespace WheelMiner
                     }
                 case "on/off":
                     {
-  //                      Runtime.UpdateFrequency = (Runtime.UpdateFrequency == UpdateFrequency.Once) ? UpdateFrequency.Update10 : UpdateFrequency.Once;
+                        //                      Runtime.UpdateFrequency = (Runtime.UpdateFrequency == UpdateFrequency.Once) ? UpdateFrequency.Update10 : UpdateFrequency.Once;
                         break;
                     }
 
