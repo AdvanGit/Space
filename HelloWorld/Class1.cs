@@ -21,13 +21,16 @@ namespace WheelMiner
         IMyMotorStator RotorMain, RotorL, RotorR, AdRotL, AdRotR;
         IMyShipController RemoteControl;
         List<IMyPistonBase> PistonsList = new List<IMyPistonBase>();
-        float pistonExtend, rotateAngle, zeroHeading, curElevation, zeroElevation, zeroFlatAngle = 0;
+        float rotateAngle, zeroHeading, curElevation, zeroElevation, zeroFlatAngle;
+        float rotateSpeed = 0.2f;
         float sensivity = 0.3f;
+        float curHeading;
+        float minDistance = 10;
         string[] dic;
         Action action = Action.Free;
-        int page = 0;
+        int page, pistonExtend;
         int[] cursor = { 0, 0 };
-        bool key1, key2, key3, isManual, isNavigate, isAutomat, isHoldFlat, isHoldHorizon, refreshDisplay = false;
+        bool key1, key2, key3, isNavigate, isHoldFlat, isHoldHorizon, refreshDisplay = false;
         public Program()
         {
             Runtime.UpdateFrequency = UpdateFrequency.Update10;
@@ -46,7 +49,7 @@ namespace WheelMiner
 
         enum Action : int
         {
-            Free, Secure, Extract, Retrack1, Retrack2, Retrack3, Manual, Automat
+            Free, Secure, Extract, Retrack1, Retrack2, Retrack3, Manual, Automat1, Automat2
         }
         public void WriteStatusDisplay()
         {
@@ -56,7 +59,7 @@ namespace WheelMiner
             display += string.Format($"\n{dic[0],-25} ");
 
             if ((action != Action.Free) && (action != Action.Manual)) display += string.Format($"{dic[26]}\n");
-            else display += string.Format($"{GetString(isManual)}\n");
+            else display += string.Format($"{GetString(action.ToString())}\n");
 
             if (isNavigate) display += string.Format($"\n{dic[21],-30}");
             if ((action == Action.Manual) && (!isHoldFlat)) display += string.Format($"\n{dic[22],-30}");
@@ -81,7 +84,11 @@ namespace WheelMiner
                                 }
                             case 1:
                                 {
-                                    if (arr[1] != 0) isAutomat = (arr[1] == 2) ? true : false;
+                                    if (arr[1] != 0)
+                                    {
+                                        action = (arr[1] == 2) ? Action.Automat1 : Action.Free;
+                                        RotorMain.TargetVelocityRPM = 0;
+                                    }
                                     break;
                                 }
                             case 2:
@@ -91,58 +98,64 @@ namespace WheelMiner
                                 }
                             case 3:
                                 {
-                                    if (arr[1] != 0)
-                                    {
-                                        pistonExtend = (arr[1] == 2) ? pistonExtend += 0.5f : pistonExtend -= 0.5f;
-                                        SetPiston(pistonExtend);
-                                    }
+                                    if (arr[1] != 0) rotateSpeed = (arr[1] == 2) ? rotateSpeed += 0.1f : rotateSpeed -= 0.1f;
                                     break;
                                 }
                             case 4:
+                                {
+                                    if (arr[1] != 0)
+                                    {
+                                        pistonExtend = (arr[1] == 2) ? pistonExtend += 1 : pistonExtend -= 1;
+                                    }
+                                    break;
+                                }
+                            case 5:
                                 {
                                     if (arr[1] != 0) isHoldHorizon = (arr[1] == 2) ? true : false;
                                     WriteStatusDisplay();
                                     break;
                                 }
-                            case 5:
+                            case 6:
                                 {
                                     if (arr[1] != 0) isHoldFlat = (arr[1] == 2) ? true : false;
                                     WriteStatusDisplay();
                                     break;
                                 }
-                            case 6:
+                            case 7:
                                 {
                                     if (arr[1] != 0)
                                     {
-                                        isAutomat = false;
                                         rotateAngle = 0;
                                         pistonExtend = 0;
+                                        if ((action == Action.Automat1) || (action == Action.Automat2)) action = Action.Free;
                                         isHoldHorizon = false;
                                         isHoldFlat = false;
                                         WriteStatusDisplay();
                                     }
                                     break;
                                 }
-                            case 7:
+                            case 8:
                                 {
                                     arr[0] = 0;
                                     break;
                                 }
                             case -1:
                                 {
-                                    arr[0] = 6;
+                                    arr[0] = 7;
                                     break;
                                 }
                         }
                         string display;
+                        bool isAutomat = ((action == Action.Automat1) || (action == Action.Automat2)) ? true : false;
 
                         display = String.Format($"{GetString(arr[0], 0, false),15} {dic[2]} {GetString(arr[0], 0, true)}");
-                        display += String.Format($"\n\n{dic[3]} {GetString(arr[0], 1, false), 23} {GetString(isAutomat)} {GetString(arr[0], 1, true)}");
+                        display += String.Format($"\n\n{dic[3]} {GetString(arr[0], 1, false),23} {GetString(isAutomat)} {GetString(arr[0], 1, true)}");
                         display += String.Format($"\n{dic[4]} {GetString(arr[0], 2, false),23} {rotateAngle} {GetString(arr[0], 2, true)}");
-                        display += String.Format($"\n{dic[5]} {GetString(arr[0], 3, false),23} {pistonExtend} {GetString(arr[0], 3, true)}");
-                        display += String.Format($"\n{dic[6]} {GetString(arr[0], 4, false),3} {GetString(isHoldHorizon)} {GetString(arr[0], 4, true)}");
-                        display += String.Format($"\n{dic[7]} {GetString(arr[0], 5, false),3} {GetString(isHoldFlat)} {GetString(arr[0], 5, true)}");
-                        display += String.Format($"\n\n{dic[17]} {GetString(arr[0], 6, true)}");
+                        display += String.Format($"\n{dic[36]} {GetString(arr[0], 3, false),23} {rotateSpeed} {GetString(arr[0], 3, true)}");
+                        display += String.Format($"\n{dic[5]} {GetString(arr[0], 4, false),23} {pistonExtend} {GetString(arr[0], 4, true)}");
+                        display += String.Format($"\n{dic[6]} {GetString(arr[0], 5, false),3} {GetString(isHoldHorizon)} {GetString(arr[0], 5, true)}");
+                        display += String.Format($"\n{dic[7]} {GetString(arr[0], 6, false),3} {GetString(isHoldFlat)} {GetString(arr[0], 6, true)}");
+                        display += String.Format($"\n{dic[17]} {GetString(arr[0], 7, true)}");
 
                         Cockpit.GetSurface(1).WriteText(display, false);
                         break;
@@ -184,22 +197,28 @@ namespace WheelMiner
                                 }
                             case 5:
                                 {
+                                    if (arr[1] != 0) minDistance = (arr[1] == 2) ? minDistance += 0.5f : minDistance -= 0.5f;
+                                    break;
+                                }
+                            case 6:
+                                {
                                     if (arr[1] != 0)
                                     {
                                         zeroHeading = 0;
                                         zeroElevation = 0;
                                         zeroFlatAngle = 0;
+                                        minDistance = 10;
                                     }
                                     break;
                                 }
-                            case 6:
+                            case 7:
                                 {
                                     arr[0] = 0;
                                     break;
                                 }
                             case -1:
                                 {
-                                    arr[0] = 5;
+                                    arr[0] = 6;
                                     break;
                                 }
                         }
@@ -210,7 +229,8 @@ namespace WheelMiner
                         display += String.Format($"\n{dic[11]} {GetString(arr[0], 2, false)} {zeroHeading:0.0} {GetString(arr[0], 2, true)}");
                         display += String.Format($"\n{dic[10]} {GetString(arr[0], 3, false)} {zeroElevation:0.0} {GetString(arr[0], 3, true)}");
                         display += String.Format($"\n{dic[12]} {GetString(arr[0], 4, false)} {zeroFlatAngle:0.0} {GetString(arr[0], 4, true)}");
-                        display += String.Format($"\n\n\n{dic[17]} {GetString(arr[0], 5, true)}");
+                        display += String.Format($"\n{dic[35]} {GetString(arr[0], 5, false)} {minDistance:0.0} {GetString(arr[0], 5, true)}");
+                        display += String.Format($"\n\n{dic[17]} {GetString(arr[0], 6, true)}");
 
                         Cockpit.GetSurface(1).WriteText(display, false);
                         break;
@@ -303,11 +323,14 @@ namespace WheelMiner
                     {
                         string[] dic = {"Ручное управление (E):", "Режим навигации (Q):", "ПРОГРАММА", "Автомат:  ", "Вращение:", "Подача:     ", "Удержание горизонта:","Удержание плоскости:", //0-7
                                 "ПАРАМЕТРЫ", "Привязать:", "Тангаж:", "Курс:", "Плоскость:", "НАСТРОЙКИ", "Язык:", "Приоритет:", "Русский", "Сброс", "Чувствительность:",                       //8-18
-                                "[ВКЛ]", "[x]", "21","22","Высокий","Средний","СТАТУС","Блок.","27","Ожидание","Заперто","Ручное упр.","Выдвижение...","Задвижение...","33"};      //19+
+                                "[ВКЛ]", "[x]", "21","22","Высокий","Средний","СТАТУС","Блок.","27","Ожидание","Заперто","Ручное упр.","Выдвижение...","Задвижение...","33", "34","35","36"};      //19+
                         dic[21] = "(исп. \"WASD\" для навигации)       ";
                         dic[22] = "(уд. \"C\" для вращения плоскости)";
                         dic[27] = "Удержание горизонта...";
                         dic[33] = "Удержание плоскости...";
+                        dic[34] = "Автомат";
+                        dic[35] = "Мин. дистанция";
+                        dic[36] = "Скорость";
                         return dic;
                     }
                 case "eng":
@@ -315,11 +338,14 @@ namespace WheelMiner
                     {
                         string[] dic = {"Manual Mode (E):", "Navigate Mode (Q):", "PROGRAM", "Automat:   ", "Roll:           ", "Feed:         ", "Hold Horizon:                ", "Hold Flat:                      ",     //0-7
                                 "PARAMS", "Bind:", "Pitch:", "Heading:", "Flat:", "SETTING", "Language:", "Priority:", "English", "Reset", "Sensivity:",           //8-18
-                                "[ON]", "[x]", "21", "22" ,"High","Medium","STATUS","locked","27","Idle","Secure","Manual","Extracting...","Retracking...","33"};    //19+
+                                "[ON]", "[x]", "21", "22" ,"High","Medium","STATUS","locked","27","Idle","Secure","Manual","Extracting...","Retracking...","33","34","35","36"};    //19+
                         dic[21] = "(use \"WASD\" to navigate)";
                         dic[22] = "(hold \"C\" to flat rotate)            ";
                         dic[27] = "Holding horizon...";
                         dic[33] = "Holding flat...";
+                        dic[34] = "Automat";
+                        dic[35] = "Min. distance";
+                        dic[36] = "Speed";
                         return dic;
                     }
             }
@@ -342,6 +368,8 @@ namespace WheelMiner
                 case "Retrack1":
                 case "Retrack2":
                 case "Retrack3": return dic[32];
+                case "Automat1":
+                case "Automat2": return dic[34];
                 default: return null;
             }
         }
@@ -350,7 +378,7 @@ namespace WheelMiner
             if (a == b)
                 if (isRight) return ">";
                 else return "<";
-            else return "";
+            else return null;
         }
 
         public void Main(string argument, UpdateType updateSource)
@@ -374,7 +402,8 @@ namespace WheelMiner
                         RotorR.TargetVelocityRPM = 0;
                         AdRotL.TargetVelocityRPM = 0;
                         AdRotR.TargetVelocityRPM = 0;
-                        SetPiston(10);
+                        if (action != Action.Automat2)
+                            SetPiston(10);
                         action = Action.Extract;
                         WriteStatusDisplay();
                         break;
@@ -401,20 +430,23 @@ namespace WheelMiner
                         }
                         break;
                     }
-                case "on/off":
+                case "automat":
                     {
-                        //                      Runtime.UpdateFrequency = (Runtime.UpdateFrequency == UpdateFrequency.Once) ? UpdateFrequency.Update10 : UpdateFrequency.Once;
+                        if ((action == Action.Free) | (action == Action.Manual)) action = Action.Automat1;
+                        else if (action == Action.Automat2) action = Action.Free;
+                        WriteStatusDisplay();
                         break;
                     }
+                case "on/off":
+                    // Runtime.UpdateFrequency = (Runtime.UpdateFrequency == UpdateFrequency.Once) ? UpdateFrequency.Update10 : UpdateFrequency.Once;
+                    break;
 
             }
 
             switch (action)
             {
                 case Action.Free:
-                    {
-                        break;
-                    }
+                    break;
                 case Action.Manual:
                     {
                         RotorMain.TargetVelocityRPM = (RemoteControl.RotationIndicator.Y) * sensivity;
@@ -442,9 +474,7 @@ namespace WheelMiner
                         break;
                     }
                 case Action.Secure:
-                    {
-                        break;
-                    }
+                    break;
                 case Action.Extract:
                     {
                         if (PistonsList[0].CurrentPosition == 10)
@@ -461,16 +491,14 @@ namespace WheelMiner
                             WriteStatusDisplay();
                         }
                         break;
-
                     }
-                case Action.Retrack1:   //heading rotor direction of rotate
+                case Action.Retrack1:
                     {
                         isHoldFlat = false;
                         isHoldHorizon = false;
-                        isManual = false;
                         SetPiston(10);
-                        AdRotL.TargetVelocityRPM = 1;
-                        AdRotR.TargetVelocityRPM = -1;
+                        AdRotL.TargetVelocityRPM = 2;
+                        AdRotR.TargetVelocityRPM = -2;
                         RotorL.TargetVelocityRPM = -0.3f;
                         RotorR.TargetVelocityRPM = 0.3f;
                         action = Action.Retrack2;
@@ -478,9 +506,8 @@ namespace WheelMiner
                         refreshDisplay = true;
                         break;
                     }
-                case Action.Retrack2:     //waiting on zerohead and elev
+                case Action.Retrack2:
                     {
-
                         if ((RotorL.Angle * 57.2 < 0) && (AdRotL.Angle * 57.2 > -0.2f))
                             if ((RotorMain.Angle * 57.2 < 360) && (RotorMain.Angle * 57.2 > 0))
                             {
@@ -509,54 +536,84 @@ namespace WheelMiner
                         }
                         break;
                     }
+                case Action.Automat1:
+                    {
+                        {
+                            if ((RotorMain.Angle * 57.2f > zeroHeading + 180) | (RotorMain.Angle * 57.2f < zeroHeading))
+                                RotorMain.TargetVelocityRPM = rotateSpeed;
+                            else
+                                RotorMain.TargetVelocityRPM = -rotateSpeed;
+                            SetPiston(minDistance);
+                            action = Action.Automat2;
+                        }
+
+                        break;
+
+                    }
+                case Action.Automat2:
+                    {
+                        if (RotorMain.Angle * 57.2 > 180)
+                            curHeading = RotorMain.Angle * 57.2f - 360;
+                        else
+                            curHeading = RotorMain.Angle * 57.2f;
+                        if (((RotorMain.TargetVelocityRPM < 0) && (curHeading <= (zeroHeading - rotateAngle))) || ((RotorMain.TargetVelocityRPM > 0) && (curHeading >= (zeroHeading + rotateAngle))))
+                        {
+                            RotorMain.ApplyAction("Reverse");
+                            SetPiston(PistonsList[0].CurrentPosition + pistonExtend * 0.1f);
+                            rotateAngle -= pistonExtend*0.25f;
+                            if ((pistonExtend != 0) && (PistonsList[0].CurrentPosition == 10))
+                            {
+                                action = Action.Free;
+                                RotorMain.TargetVelocityRPM = 0;
+                            //  MessageAllert("Program complete");
+                            }
+                            refreshDisplay = true;
+
+                        }
+
+                        break;
+                    }
             }
 
             switch ((RemoteControl.RollIndicator).ToString())
             {
                 case "0":
+                    if (key1)
                     {
-                        if (key1)
-                        {
-                            key1 = false;
-                        }
-                        break;
+                        key1 = false;
                     }
+                    break;
                 case "-1":
+                    if (!key1)
                     {
-                        if (!key1)
-                        {
-                            isNavigate = !isNavigate;
-                            key1 = !key1;
-                            WriteStatusDisplay();
-
-                        }
-                        break;
+                        isNavigate = !isNavigate;
+                        if (isNavigate)
+                            RemoteControl.ControlWheels = false;
+                        else
+                            RemoteControl.ControlWheels = true;
+                        WriteStatusDisplay();
                     }
+                    break;
                 case "1":
+                    if (!key1)
                     {
-                        if (!key1)
+                        if (action == Action.Free)
                         {
-                            if (action == Action.Free)
-                            {
-                                action = Action.Manual;
-                                isManual = true;
-                                key1 = !key1;
-                            }
-                            else if (action == Action.Manual)
-                            {
-                                action = Action.Free;
-                                isManual = false;
-                                key1 = !key1;
-                            }
-                            WriteStatusDisplay();
+                            action = Action.Manual;
+                            key1 = !key1;
                         }
-                        break;
+                        else if (action == Action.Manual)
+                        {
+                            action = Action.Free;
+                            key1 = !key1;
+                        }
+                        WriteStatusDisplay();
                     }
+                    break;
             } //Change control mode 
 
             if (isHoldHorizon)
             {
-
                 Vector3D GravNorm = Vector3D.Normalize((Cockpit as IMyShipController).GetNaturalGravity());
                 float vecForward = (float)GravNorm.Dot((Cockpit as IMyShipController).WorldMatrix.Forward);
                 float vecUp = (float)GravNorm.Dot((Cockpit as IMyShipController).WorldMatrix.Up);
@@ -581,73 +638,58 @@ namespace WheelMiner
                 switch ((RemoteControl.MoveIndicator.Z).ToString())
                 {
                     case "0":
-                        {
-                            if (key2)
-                                key2 = false;
-                            break;
-                        }
+                        if (key2)
+                            key2 = false;
+                        break;
                     case "-1": //w key pressed
+                        if (!key2)
                         {
-                            if (!key2)
-                            {
-                                cursor[0]--;
-                                key2 = true;
-                                WriteNavigateDisplay(cursor);
-                            }
-                            break;
+                            cursor[0]--;
+                            key2 = true;
+                            WriteNavigateDisplay(cursor);
                         }
+                        break;
                     case "1":   //s key pressed
+                        if (!key2)
                         {
-                            if (!key2)
-                            {
-                                cursor[0]++;
-                                key2 = true;
-                                WriteNavigateDisplay(cursor);
-                            }
-                            break;
+                            cursor[0]++;
+                            key2 = true;
+                            WriteNavigateDisplay(cursor);
                         }
+                        break;
                 }
                 switch ((RemoteControl.MoveIndicator.X).ToString())
                 {
                     case "0":
-                        {
-                            if (key3)
-                                key3 = false;
-                            cursor[1] = 0;
-                            break;
-                        }
+                        if (key3)
+                            key3 = false;
+                        cursor[1] = 0;
+                        break;
                     case "1": //D key pressed
+                        if (!key3)
                         {
-                            if (!key3)
-                            {
-                                cursor[1] = 2;
-                                if (Runtime.UpdateFrequency == UpdateFrequency.Update1) key3 = true;
-                                WriteNavigateDisplay(cursor);
-                            }
-                            break;
+                            cursor[1] = 2;
+                            if (Runtime.UpdateFrequency == UpdateFrequency.Update1) key3 = true;
+                            WriteNavigateDisplay(cursor);
                         }
+                        break;
                     case "-1": //A key pressed
+                        if (!key3)
                         {
-                            if (!key3)
-                            {
-                                cursor[1] = 1;
-                                if (Runtime.UpdateFrequency == UpdateFrequency.Update1) key3 = true;
-                                WriteNavigateDisplay(cursor);
-                            }
-                            break;
-
+                            cursor[1] = 1;
+                            if (Runtime.UpdateFrequency == UpdateFrequency.Update1) key3 = true;
+                            WriteNavigateDisplay(cursor);
                         }
+                        break;
+
                 }
-                RemoteControl.ControlWheels = false;
             }
-            else RemoteControl.ControlWheels = true;
 
 
             //--------DEBUG---------
             Cockpit.GetSurface(0).WriteText(cursor[0].ToString() + cursor[1].ToString(), false);
             Cockpit.GetSurface(0).WriteText("\nflat: " + isHoldFlat.ToString(), true);
-            Cockpit.GetSurface(0).WriteText("\nPitchInputEl: " + curElevation, true);
-            Cockpit.GetSurface(0).WriteText("\nAction: " + action, true);
+            Cockpit.GetSurface(0).WriteText("\nCurrentHead: " + curHeading, true);
             Cockpit.GetSurface(0).WriteText("\nMain Rotor Angle:  " + (RotorMain.Angle * 57.2).ToString(), true);
             Cockpit.GetSurface(0).WriteText("\nAdRotorAngle:  " + (AdRotR.Angle * 57.2).ToString(), true);
             Cockpit.GetSurface(0).WriteText("\n" + action.ToString(), true);
